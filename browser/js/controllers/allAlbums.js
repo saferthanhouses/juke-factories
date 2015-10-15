@@ -1,16 +1,15 @@
-app.controller('allAlbumsCtrl', function($scope, $http,$rootScope){
+app.controller('allAlbumsCtrl', function($scope, $http,$rootScope, AlbumFactory){
 	$scope.showAlbums=true;
-	$http.get('/api/albums')
-		.then(function(response){
-			albums = response.data;
-			return albums
-		})
+
+		AlbumFactory.fetchAll()
 		.then(function(albums){ 
 			$scope.albums = albums;
 		})
 		.catch(function(error){
 			console.error(error);
 		})
+
+
 	$rootScope.$on('showAllAlbums',function() {
 		$scope.showAlbums = !$scope.showAlbums;
 	})
@@ -22,4 +21,8 @@ app.controller('allAlbumsCtrl', function($scope, $http,$rootScope){
 	$scope.showSpecificAlbum = function(albumid){
 		$rootScope.$broadcast('showSpecificAlbum',albumid);
 	}
+
+	$rootScope.$on('hideEverythingButOneAlbum',function() {
+		$scope.showAlbums = false;
+	})
 })

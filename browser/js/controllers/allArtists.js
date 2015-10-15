@@ -1,19 +1,23 @@
-app.controller('allArtists',function($rootScope,$scope,$http) {
-	$scope.showArtist = false;
+app.controller('allArtists',function($rootScope,$scope,$http,ArtistFactory) {
+	$scope.showArtists = false;
 
 	$rootScope.$on('showAllArtists',function() {
-		console.log("received ShowArtists broadcast")
-		$http.get('/api/artists')
-		.then(function(response) {
-			console.log(response)
-			return response.data;
-		})
+
+		ArtistFactory.fetchAll()
 		.then(function(artists){
 
 			$scope.artists=artists;
 		})
-		console.log($scope.artists)
-		$scope.showArtist = true;
 		$rootScope.$broadcast('hideEverything');
+		$scope.showArtists = true;
 	})
+
+	$rootScope.$on('hideEverything', function() {
+		$scope.showArtists = false;
+	})
+
+	$scope.viewOneArtist = function(artistid) {
+		console.log('view one artist', artistid)
+		$rootScope.$broadcast('showSpecificArtist', artistid);
+	}
 })

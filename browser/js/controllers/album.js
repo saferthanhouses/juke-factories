@@ -20,35 +20,30 @@
 // 	imageUrl: 'http://fillmurray.com/300/300'
 // };
 
-app.controller('AlbumCtrl', function ($scope, $http, $rootScope, StatsFactory, PlayerFactory) {
+app.controller('AlbumCtrl', function ($scope, $http, $rootScope, StatsFactory, PlayerFactory, AlbumFactory) {
 	// $scope.album = fakeAlbum;
-	$scope.showAlbums=true;
+	$scope.showAlbum=false;
 
 	$rootScope.$on('showSpecificAlbum',function(evt,albumid) {
-	$http.get('/api/albums/'+albumid)
-	.then(function (response) {
-		var album = response.data;
-		album.imageUrl = '/api/albums/' + album._id + '.image';
-		var albumArtists = _.indexBy(album.artists, '_id');
-		album.songs.forEach(function (s) {
-			s.audioUrl = '/api/songs/' + s._id + '.audio';
-			s.artists = s.artists.map(function (artistId) {
-				return albumArtists[artistId];
-			});
-		});
-		$scope.album = album;
-		return album;
-	}).then(function(album){
-		StatsFactory.totalTime(album)
-			.then(function(totalTime){
-				$scope.albumTime = totalTime;
-			}).catch(function(error) { console.error(error) })
-	})
-	$scope.showAlbums=false;
+
+		AlbumFactory.fetchById(albumid)
+			.then(function(album) {
+				$scope.album = album;
+				return album;
+			})
+			.then(function(album){
+				StatsFactory.totalTime(album)
+					.then(function(totalTime){
+						$scope.albumTime = totalTime;
+					})
+					.catch(function(error) { console.error(error) })
+			})
+		$scope.showAlbum=true;
+		$rootScope.$broadcast('hideEverythingButOneAlbum');
 	});
 
 	$rootScope.$on('hideEverything',function() {
-	$scope.showAlbums = true;
+		$scope.showAlbum = false;
 	})
 
 	$scope.start = function (s) {
